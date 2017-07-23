@@ -17,7 +17,9 @@ class Home extends React.Component {
       .then(books => {
         this.setState({ books, isLoadingBooks: false });
       })
-      .catch(e => {});
+      .catch(e => {
+        
+      });
   }
 
   createBookshelves() {
@@ -44,13 +46,18 @@ class Home extends React.Component {
   }
 
  handleBookshelfChange = (book, newBookshelf) => {
-   const books = JSON.parse(JSON.stringify(this.state.books));
+   BooksAPI.update(book, newBookshelf)
+    .then(response => {
+      const books = JSON.parse(JSON.stringify(this.state.books)),
+            bookToUpdate = books.filter(b => b.id === book.id)[0];
 
-   book = books.filter(b => b.id === book.id)[0];
+      bookToUpdate.shelf = newBookshelf;
 
-   book.shelf = newBookshelf;
+      this.setState({ books });
+    })
+    .catch(e => {
 
-   this.setState({ books });
+    });
  }
 
   render() {
