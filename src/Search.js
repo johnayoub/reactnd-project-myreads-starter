@@ -1,41 +1,50 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 import Book from "./Book";
 import * as BooksAPI from "./BooksAPI";
-import BookUpdate from "./BooksAPIUpdateWrapper";
 
 class Search extends React.Component {
   state = {
-    books: [],
+    searchResults: [],
     query: ""
   };
 
   handleSearch = e => {
     const query = e.target.value,
-          trimmedQuery = query.slice(0).trim();
+      trimmedQuery = query.slice(0).trim();
 
     if (trimmedQuery.length > 0) {
       BooksAPI.search(trimmedQuery, 50)
-        .then(books => {
-          this.setState({ books });
+        .then(response => {
+          // set the searchResults to [] if the query value is ''
+          // this could happen if the user typed too quickly to set off
+          // a search followed below else statement
+          if (response.error) {
+            this.setState(state => ({ searchResults: [] }));
+
+            return;
+          }
+
+          // if the search results matches one my books then updated the shelf
+          // to match.
+          response.forEach(book => {
+            const myBook = this.props.books.filter(b => b.id === book.id)[0];
+
+            if (myBook) {
+              book.shelf = myBook.shelf;
+            }
+          });
+
+          this.setState(state => ({
+            searchResults: state.query.length === 0 ? [] : response
+          }));
         })
-        .catch(e => {
-
-        });
+        .catch(e => {});
+    } else {
+      this.setState(state => ({ searchResults: [] }));
     }
-    else {
-      this.setState({ books: [] });
-    }
-
     this.setState({ query });
-  };
-
-  handleBookshelfChange = (book, newBookshelf) => {
-    BookUpdate(book, newBookshelf, this.state.books)
-      .then(books => {
-        this.setState({ books });
-      })
-      .catch(e => {});
   };
 
   render() {
@@ -56,11 +65,11 @@ class Search extends React.Component {
         </div>
         <div className="search-books-results">
           <ol className="books-grid">
-            {this.state.books.map(book =>
+            {this.state.searchResults.map(book =>
               <li key={book.id}>
                 <Book
                   book={book}
-                  onBookshelfChange={this.handleBookshelfChange}
+                  onBookshelfChange={this.props.onBookshelfChange}
                 />
               </li>
             )}
@@ -70,5 +79,10 @@ class Search extends React.Component {
     );
   }
 }
+
+Search.PropTypes = {
+  books: PropTypes.array.isRequired,
+  onBookshelfChange: PropTypes.func.isRequired
+};
 
 export default Search;

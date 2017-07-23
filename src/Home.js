@@ -1,28 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import * as BooksAPI from "./BooksAPI";
-import BookUpdate from "./BooksAPIUpdateWrapper";
+import PropTypes from 'prop-types';
 import Bookshelf from "./Bookshelf";
 import Bookshelves from "./Bookshelves";
-import Spinner from "./Spinner";
 import Sortby from "sort-by";
 
 class Home extends React.Component {
-  state = {
-    books: [],
-    isLoadingBooks: true
-  };
-
-  componentDidMount() {
-    BooksAPI.getAll()
-      .then(books => {
-        this.setState({ books, isLoadingBooks: false });
-      })
-      .catch(e => {});
-  }
-
   createBookshelves() {
-    var booksByShelf = this.state.books.reduce((map, book) => {
+    var booksByShelf = this.props.books.reduce((map, book) => {
       const key = book.shelf;
 
       map[key] = map[key] || [];
@@ -44,14 +29,6 @@ class Home extends React.Component {
     return bookshelvesToDisplay;
   }
 
-  handleBookshelfChange = (book, newBookshelf) => {
-    BookUpdate(book, newBookshelf, this.state.books)
-      .then(books => {
-        this.setState({ books });
-      })
-      .catch(e => {});
-  };
-
   render() {
     const bookshelves = this.createBookshelves();
 
@@ -60,28 +37,31 @@ class Home extends React.Component {
         <div className="list-books-title">
           <h1>MyReads</h1>
         </div>
-        {this.state.isLoadingBooks
-          ? <Spinner message={"Loading books..."} />
-          : <div>
-              <div className="list-books-content">
-                <div>
-                  {bookshelves.map(shelf =>
-                    <Bookshelf
-                      key={shelf.key}
-                      bookshelfTitle={shelf.name}
-                      books={shelf.books}
-                      onBookshelfChange={this.handleBookshelfChange}
-                    />
-                  )}
-                </div>
+        <div>
+            <div className="list-books-content">
+              <div>
+                {bookshelves.map(shelf =>
+                  <Bookshelf
+                    key={shelf.key}
+                    bookshelfTitle={shelf.name}
+                    books={shelf.books}
+                    onBookshelfChange={this.props.onBookshelfChange}
+                  />
+                )}
               </div>
-              <div className="open-search">
-                <Link to="/search">Add a book</Link>
-              </div>
-            </div>}
+            </div>
+            <div className="open-search">
+              <Link to="/search">Add a book</Link>
+            </div>
+          </div>
       </div>
     );
   }
+}
+
+Home.PropTypes = {
+  books: PropTypes.array.isRequired,
+  onBookshelfChange: PropTypes.func.isRequired
 }
 
 export default Home;
