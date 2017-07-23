@@ -11,6 +11,8 @@ class Book extends React.Component {
     const book = this.props.book,
           options = Bookshelves.filter(shelf => shelf.displayInOptions);;
 
+   book.authors = book.authors || []; // in case the authors are unknown
+
     return (
       <div className="book">
         <div className="book-top">
