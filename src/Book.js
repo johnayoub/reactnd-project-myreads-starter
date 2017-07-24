@@ -1,17 +1,20 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Bookshelves from './Bookshelves';
+import Bookshelves from "./Bookshelves";
 
 class Book extends React.Component {
-  handleBookshelfChange = (e) => {
+  handleBookshelfChange = e => {
     this.props.onBookshelfChange(this.props.book, e.target.value);
-  }
+  };
 
   render() {
+    // authors could be null/undefined
     const book = this.props.book,
-          options = Bookshelves.filter(shelf => shelf.displayInOptions);;
-
-   book.authors = book.authors || []; // in case the authors are unknown
+      options = Bookshelves.filter(shelf => shelf.displayInOptions),
+      authors = book.authors || [''],
+      thumbnail =
+        (book.imageLinks && book.imageLinks.thumbnail) ||
+        "/book-default.jpg";
 
     return (
       <div className="book">
@@ -21,7 +24,7 @@ class Book extends React.Component {
             style={{
               width: 128,
               height: 193,
-              backgroundImage: `url(${book.imageLinks.thumbnail})`
+              backgroundImage: `url(${thumbnail})`
             }}
           />
           <div className="book-shelf-changer">
@@ -44,7 +47,7 @@ class Book extends React.Component {
           {book.title}
         </div>
         <div className="book-authors">
-          {book.authors.join(", ")}
+          {authors.join(", ")}
         </div>
       </div>
     );
