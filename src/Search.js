@@ -35,6 +35,9 @@ class Search extends React.Component {
               if (myBook) {
                 book.shelf = myBook.shelf;
               }
+              else {
+                book.shelf = "none";
+              }
             });
 
             return { searchResults: state.query.length === 0 ? [] : response };
