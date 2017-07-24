@@ -26,19 +26,19 @@ class Search extends React.Component {
             return;
           }
 
-          // if the search results matches one my books then updated the shelf
-          // to match.
-          response.forEach(book => {
-            const myBook = this.props.books.filter(b => b.id === book.id)[0];
+          this.setState((state, props) => {
+            // if the search results matches one my books then updated the shelf
+            // to match.
+            response.forEach(book => {
+              const myBook = props.books.filter(b => b.id === book.id)[0];
 
-            if (myBook) {
-              book.shelf = myBook.shelf;
-            }
+              if (myBook) {
+                book.shelf = myBook.shelf;
+              }
+            });
+
+            return { searchResults: state.query.length === 0 ? [] : response };
           });
-
-          this.setState(state => ({
-            searchResults: state.query.length === 0 ? [] : response
-          }));
         })
         .catch(e => {});
     } else {
